@@ -1,50 +1,83 @@
 # Basic Calculator
 
-A vanilla HTML/CSS/JavaScript calculator based on the [florinpop app-ideas spec](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Calculator-App.md).
+A vanilla HTML/CSS/JavaScript calculator built from the [florinpop app-ideas spec](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Calculator-App.md). Implements core arithmetic without `eval()`, with separated logic/UI layers and keyboard support.
 
-## Learning progress
+**[Live demo](https://jkbitcraft.github.io/Basic-Calculator/)**
 
-| Lesson | Topic | Status |
-|--------|-------|--------|
-| 1a | HTML layout + CSS styles | ✅ |
-| 1b | Digit input + AC clear | ✅ |
-| 1c | Lesson 1 README | ✅ |
-| 2 | Operators (+, -, /) and equals | ✅ |
-| 3 | C button and ERR polish | ✅ |
-| 4 | Bonus: +/-, decimals, keyboard | ✅ |
-| 5 | Deploy and portfolio README | ⬜ |
+![Calculator screenshot](docs/screenshot.png)
+
+## About this project
+
+This is **Project 1** in my [app-ideas](https://github.com/florinpop17/app-ideas) learning series — a personal portfolio path where I work through beginner projects to build fundamentals from the ground up.
+
+It is my **first standalone project** built outside of university coursework. No tutors, no group briefs, no step-by-step handouts — just me, a spec, and the goal of understanding how a real app fits together. I used **AI as a teacher** throughout: it broke the work into lessons (scaffold → logic → operators → polish → deploy), explained concepts like state and event handling, and paused at each commit so I could learn the process, not just copy code.
+
+I chose to start here because a calculator is small enough to finish, but rich enough to practice HTML structure, CSS layout, JavaScript state, and git workflow — the basics I wanted to learn properly before moving on to larger projects in the series.
+
+## Features
+
+- Basic operations: `+`, `-`, `/`, and `=`
+- Chained calculations (e.g. `12 + 3 + 2 =`)
+- 8-digit entry limit with `ERR` on overflow
+- Divide-by-zero handling
+- `AC` (clear all) and `C` (clear entry / undo last operator)
+- Sign toggle (`+/-`) and decimals (up to 3 places)
+- Full keyboard support
+- Accessible display (`aria-live`) and semantic button markup
+
+## Tech stack
+
+- HTML5
+- CSS3 (custom properties, Grid, responsive layout)
+- Vanilla JavaScript (ES6+)
+- GitHub Pages (hosting)
+
+## Architecture
+
+```
+View       →  index.html, styles.css
+Controller →  calculator.js (events → methods)
+Model      →  calculator-logic.js (state + pure math)
+```
+
+`calculator-logic.js` has no DOM dependencies. Math helpers like `applyOperator()` are pure functions, which keeps behavior testable and easy to explain in interviews.
+
+## Challenges & solutions
+
+- **Chained operations** — Pressing a second operator computes the pending operation first, so `12 + 3 +` correctly shows `15` before waiting for the next number.
+- **C vs AC** — Tracking `lastAction` lets `C` either clear the current entry or undo a pending operator, matching real calculator behavior.
+- **Decimal precision** — Results format to the maximum decimal places entered in either operand, per the spec bonus requirement.
+- **No `eval()`** — Explicit operator functions avoid security risks and keep calculation rules under full control.
 
 ## Run locally
 
-No build step required. Open `index.html` in a browser, or use a local server:
+No build step required.
 
 ```bash
 npx serve .
 ```
 
-Then visit `http://localhost:3000`.
+Open `http://localhost:3000`, or open `index.html` directly in a browser.
+
+## Deploy (GitHub Pages)
+
+1. Push `main` to GitHub
+2. Repo **Settings** → **Pages**
+3. **Source:** Deploy from branch `main`, folder `/ (root)`
+4. Live URL: `https://jkbitcraft.github.io/Basic-Calculator/`
 
 ## Project structure
 
 ```
 Basic-Calculator/
-├── index.html           # Structure (display + buttons)
-├── styles.css           # Visual design
-├── calculator-logic.js  # State & rules (no DOM)
-├── calculator.js        # Button clicks → logic
+├── index.html
+├── styles.css
+├── calculator-logic.js
+├── calculator.js
+├── docs/
+│   └── screenshot.png
 └── README.md
 ```
-
-**Why split logic from UI?** The calculator rules live in `calculator-logic.js` with no HTML dependencies. That makes the behavior easy to test and reason about — a pattern worth using even in small projects.
-
-## Behavior notes
-
-- **Chained operations:** `12 + 3 + 2 =` computes step-by-step (`15`, then `17`).
-- **`12 + =`:** Repeats the left operand (`12 + 12 = 24`).
-- **C vs AC:** `C` clears the current entry or undoes the last operator; `AC` resets everything.
-- **ERR:** Shown on divide-by-zero or results exceeding 8 digits. Any key after `ERR` starts fresh.
-- **Decimals:** Up to 3 places per number; results use the most decimal places entered in either operand.
-- **Keyboard:** `0-9`, `+`, `-`, `/`, `.`, `Enter`/`=`, `Escape` (AC), `C`/`c` (clear entry).
 
 ## Spec checklist
 
@@ -58,6 +91,20 @@ Basic-Calculator/
 - [x] Bonus: +/- toggle
 - [x] Bonus: decimal point (3 places)
 
-## Constraints
+## Learning journey
 
-- No `eval()` — calculations use explicit functions.
+Built incrementally in lessons with AI guidance: scaffold → digit input → operators → clear/ERR → bonus features → deploy. Each step was a separate commit so the history shows how the project grew piece by piece.
+
+This is the first entry in the series. Future projects from [app-ideas](https://github.com/florinpop17/app-ideas) will be added to my portfolio as I work through them.
+
+## Future improvements
+
+- `%` modulo operator
+- Calculation history tape
+- Light/dark theme toggle
+- Unit tests (Vitest) for `calculator-logic.js`
+- Mobile haptic feedback
+
+## License
+
+MIT
