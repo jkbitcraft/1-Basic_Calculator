@@ -2,7 +2,7 @@
 
 A vanilla HTML/CSS/JavaScript calculator built from the [florinpop app-ideas spec](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Calculator-App.md). Implements core arithmetic without `eval()`, with separated logic/UI layers and keyboard support.
 
-**[Live demo](https://jkbitcraft.github.io/Basic-Calculator/)**
+**[Live demo](https://jkbitcraft.github.io/1-Basic_Calculator/)**
 
 ![Calculator screenshot](docs/screenshot.png)
 
@@ -64,12 +64,12 @@ Open `http://localhost:3000`, or open `index.html` directly in a browser.
 1. Push `main` to GitHub
 2. Repo **Settings** → **Pages**
 3. **Source:** Deploy from branch `main`, folder `/ (root)`
-4. Live URL: `https://jkbitcraft.github.io/Basic-Calculator/`
+4. Live URL: `https://jkbitcraft.github.io/1-Basic_Calculator/`
 
 ## Project structure
 
 ```
-Basic-Calculator/
+1-Basic_Calculator/
 ├── index.html
 ├── styles.css
 ├── calculator-logic.js
