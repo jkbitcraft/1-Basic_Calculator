@@ -1,5 +1,5 @@
 /**
- * Calculator UI — Lesson 1b
+ * Calculator UI — Lessons 1 & 2
  *
  * Connects HTML buttons to Calculator logic via event delegation
  * (one listener on the keypad, not one per button).
@@ -28,7 +28,13 @@ keypadEl.addEventListener("click", (event) => {
     case "clear-all":
       calculator.clearAll();
       break;
-    // Lesson 2+: operator, equals; Lesson 3: C; Lesson 4: +/-, decimal
+    case "operator":
+      calculator.inputOperator(button.dataset.op);
+      break;
+    case "equals":
+      calculator.inputEquals();
+      break;
+    // Lesson 3: C; Lesson 4: +/-, decimal
     default:
       return;
   }
