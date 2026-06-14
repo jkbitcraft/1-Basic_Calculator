@@ -11,7 +11,7 @@ A vanilla HTML/CSS/JavaScript calculator based on the [florinpop app-ideas spec]
 | 1c | Lesson 1 README | ✅ |
 | 2 | Operators (+, -, /) and equals | ✅ |
 | 3 | C button and ERR polish | ✅ |
-| 4 | Bonus: +/-, decimals, keyboard | ⬜ |
+| 4 | Bonus: +/-, decimals, keyboard | ✅ |
 | 5 | Deploy and portfolio README | ⬜ |
 
 ## Run locally
@@ -43,6 +43,8 @@ Basic-Calculator/
 - **`12 + =`:** Repeats the left operand (`12 + 12 = 24`).
 - **C vs AC:** `C` clears the current entry or undoes the last operator; `AC` resets everything.
 - **ERR:** Shown on divide-by-zero or results exceeding 8 digits. Any key after `ERR` starts fresh.
+- **Decimals:** Up to 3 places per number; results use the most decimal places entered in either operand.
+- **Keyboard:** `0-9`, `+`, `-`, `/`, `.`, `Enter`/`=`, `Escape` (AC), `C`/`c` (clear entry).
 
 ## Spec checklist
 
@@ -53,8 +55,8 @@ Basic-Calculator/
 - [x] AC clears all and sets display to 0
 - [x] C clears last number or last operation
 - [x] ERR when result exceeds 8 digits
-- [ ] Bonus: +/- toggle
-- [ ] Bonus: decimal point (3 places)
+- [x] Bonus: +/- toggle
+- [x] Bonus: decimal point (3 places)
 
 ## Constraints
 

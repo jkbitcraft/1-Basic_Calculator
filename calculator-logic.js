@@ -1,5 +1,5 @@
 /**
- * Calculator Logic — Lessons 1–3
+ * Calculator Logic — Lessons 1–4
  *
  * This file has NO knowledge of HTML or buttons.
  * It only manages state and rules. That separation makes logic
@@ -7,6 +7,7 @@
  */
 
 const MAX_DIGITS = 8;
+const MAX_DECIMAL_PLACES = 3;
 
 function createInitialState() {
   return {
@@ -15,9 +16,20 @@ function createInitialState() {
     previousValue: null,
     operator: null,
     waitingForOperand: false,
-    lastAction: null, // tracks "digit" | "operator" | "equals" | "clear" for C button later
+    lastAction: null,
     hasError: false,
   };
+}
+
+function countIntegerDigits(value) {
+  const [intPart] = value.replace("-", "").split(".");
+  return intPart.length;
+}
+
+function countDecimalPlaces(value) {
+  const normalized = value.replace("-", "");
+  const dotIndex = normalized.indexOf(".");
+  return dotIndex === -1 ? 0 : normalized.length - dotIndex - 1;
 }
 
 // --- Pure math (Lesson 2) — no eval(), easy to unit test ---
@@ -53,23 +65,24 @@ function exceedsMaxDigits(value) {
   return integerPart >= Math.pow(10, MAX_DIGITS);
 }
 
-function formatResult(value) {
+function formatResult(value, decimalPlaces = 0) {
   if (value === "ERR") return "ERR";
+  if (decimalPlaces > 0) {
+    return Number(value).toFixed(decimalPlaces);
+  }
   return Number.isInteger(value) ? String(value) : String(value);
 }
 
 class Calculator {
   constructor() {
     this.state = createInitialState();
+    this._previousValueStr = null;
   }
 
   getDisplay() {
     return this.state.display;
   }
 
-  /**
-   * Lesson 1b: digit entry
-   */
   inputDigit(digit) {
     if (this.state.hasError) {
       this.clearAll();
@@ -80,9 +93,15 @@ class Calculator {
     if (waitingForOperand) {
       this.state.currentValue = digit;
       this.state.waitingForOperand = false;
+    } else if (currentValue.includes(".")) {
+      if (countDecimalPlaces(currentValue) < MAX_DECIMAL_PLACES) {
+        this.state.currentValue += digit;
+      }
     } else if (currentValue === "0") {
       this.state.currentValue = digit;
-    } else if (currentValue.replace("-", "").length < MAX_DIGITS) {
+    } else if (currentValue === "-0") {
+      this.state.currentValue = "-" + digit;
+    } else if (countIntegerDigits(currentValue) < MAX_DIGITS) {
       this.state.currentValue += digit;
     }
 
@@ -90,26 +109,28 @@ class Calculator {
     this.state.lastAction = "digit";
   }
 
-  /**
-   * Lesson 2: operator buttons (+, -, /)
-   *
-   * Chaining: "12 + 3 +" computes 15 before storing the new operator.
-   * Swapping: "12 +" then "-" just changes operator (display stays 12).
-   */
   inputOperator(op) {
     if (this.state.hasError) return;
 
     const inputValue = Number(this.state.currentValue);
 
     if (this.state.previousValue !== null && !this.state.waitingForOperand) {
-      const result = this._compute(this.state.previousValue, inputValue, this.state.operator);
+      const result = this._compute(
+        this.state.previousValue,
+        inputValue,
+        this.state.operator,
+        this._previousValueStr,
+        this.state.currentValue
+      );
       if (result === null) return;
 
       this.state.previousValue = Number(result);
       this.state.currentValue = result;
       this.state.display = result;
+      this._previousValueStr = result;
     } else if (this.state.previousValue === null) {
       this.state.previousValue = inputValue;
+      this._previousValueStr = this.state.currentValue;
     }
 
     this.state.operator = op;
@@ -117,31 +138,34 @@ class Calculator {
     this.state.lastAction = "operator";
   }
 
-  /**
-   * Lesson 2: equals button
-   *
-   * "12 + =" repeats the left operand (12 + 12 = 24).
-   */
   inputEquals() {
     if (this.state.hasError) return;
     if (this.state.operator === null || this.state.previousValue === null) return;
 
-    const right = this.state.waitingForOperand
-      ? this.state.previousValue
-      : Number(this.state.currentValue);
+    const rightStr = this.state.waitingForOperand
+      ? this._previousValueStr
+      : this.state.currentValue;
+    const right = Number(rightStr);
 
-    const result = this._compute(this.state.previousValue, right, this.state.operator);
+    const result = this._compute(
+      this.state.previousValue,
+      right,
+      this.state.operator,
+      this._previousValueStr,
+      rightStr
+    );
     if (result === null) return;
 
     this.state.display = result;
     this.state.currentValue = result;
     this.state.previousValue = null;
+    this._previousValueStr = null;
     this.state.operator = null;
     this.state.waitingForOperand = true;
     this.state.lastAction = "equals";
   }
 
-  _compute(left, right, op) {
+  _compute(left, right, op, leftStr, rightStr) {
     const raw = applyOperator(left, right, op);
 
     if (raw === "ERR" || exceedsMaxDigits(raw)) {
@@ -149,7 +173,12 @@ class Calculator {
       return null;
     }
 
-    return formatResult(raw);
+    const maxDecimals = Math.max(
+      countDecimalPlaces(String(leftStr ?? left)),
+      countDecimalPlaces(String(rightStr ?? right))
+    );
+
+    return formatResult(raw, maxDecimals);
   }
 
   _setError() {
@@ -157,6 +186,7 @@ class Calculator {
     this.state.display = "ERR";
     this.state.currentValue = "0";
     this.state.previousValue = null;
+    this._previousValueStr = null;
     this.state.operator = null;
     this.state.waitingForOperand = false;
     this.state.lastAction = "equals";
@@ -164,16 +194,10 @@ class Calculator {
 
   clearAll() {
     this.state = createInitialState();
+    this._previousValueStr = null;
     this.state.lastAction = "clear";
   }
 
-  /**
-   * Lesson 3: C (clear entry)
-   *
-   * - Last action was operator → undo it, restore display to previousValue
-   * - Otherwise → clear current number back to 0
-   * - ERR state → full reset (same as AC)
-   */
   clearEntry() {
     if (this.state.hasError) {
       this.clearAll();
@@ -186,6 +210,7 @@ class Calculator {
       this.state.display = prior;
       this.state.operator = null;
       this.state.previousValue = null;
+      this._previousValueStr = null;
       this.state.waitingForOperand = false;
       this.state.lastAction = "clear";
       return;
@@ -196,11 +221,47 @@ class Calculator {
     this.state.lastAction = "clear";
   }
 
+  /**
+   * Lesson 4: +/- toggles sign of the number being entered
+   */
   toggleSign() {
-    // Lesson 4 (bonus)
+    if (this.state.hasError) {
+      this.clearAll();
+      return;
+    }
+
+    if (this.state.waitingForOperand) {
+      this.state.currentValue = "-0";
+      this.state.waitingForOperand = false;
+    } else if (this.state.currentValue.startsWith("-")) {
+      const unsigned = this.state.currentValue.slice(1);
+      this.state.currentValue = unsigned === "0" ? "0" : unsigned;
+    } else if (this.state.currentValue === "0") {
+      this.state.currentValue = "-0";
+    } else {
+      this.state.currentValue = "-" + this.state.currentValue;
+    }
+
+    this.state.display = this.state.currentValue;
+    this.state.lastAction = "digit";
   }
 
+  /**
+   * Lesson 4: decimal point — up to 3 places per number
+   */
   inputDecimal() {
-    // Lesson 4 (bonus)
+    if (this.state.hasError) {
+      this.clearAll();
+    }
+
+    if (this.state.waitingForOperand) {
+      this.state.currentValue = "0.";
+      this.state.waitingForOperand = false;
+    } else if (!this.state.currentValue.includes(".")) {
+      this.state.currentValue += ".";
+    }
+
+    this.state.display = this.state.currentValue;
+    this.state.lastAction = "digit";
   }
 }
