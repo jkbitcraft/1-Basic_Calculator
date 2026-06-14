@@ -104,6 +104,7 @@ This is the first entry in the series. Future projects from [app-ideas](https://
 - Light/dark theme toggle
 - Unit tests (Vitest) for `calculator-logic.js`
 - Mobile haptic feedback
+- operators 'color change' on activation
 
 ## License
 
