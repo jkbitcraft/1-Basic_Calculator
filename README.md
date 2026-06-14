@@ -61,10 +61,19 @@ Open `http://localhost:3000`, or open `index.html` directly in a browser.
 
 ## Deploy (GitHub Pages)
 
-1. Push `main` to GitHub
-2. Repo **Settings** → **Pages**
-3. **Source:** Deploy from branch `main`, folder `/ (root)`
-4. Live URL: `https://jkbitcraft.github.io/1-Basic_Calculator/`
+GitHub Pages is **not automatic** — you need to enable it once per repo.
+
+### One-time setup
+
+1. Push this repo to `main`
+2. Open **[Settings → Pages](https://github.com/jkbitcraft/1-Basic_Calculator/settings/pages)**
+3. Under **Build and deployment**, set **Source** to **GitHub Actions** (not "Deploy from branch")
+4. Go to the **Actions** tab and confirm the "Deploy to GitHub Pages" workflow ran successfully
+5. Wait 1–3 minutes, then open: `https://jkbitcraft.github.io/1-Basic_Calculator/`
+
+After setup, every push to `main` redeploys the site automatically.
+
+> **Note:** Renaming the repo resets Pages. If you see "There isn't a GitHub Pages site here", repeat the steps above.
 
 ## Project structure
 
