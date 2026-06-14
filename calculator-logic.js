@@ -1,5 +1,5 @@
 /**
- * Calculator Logic — Lessons 1 & 2
+ * Calculator Logic — Lessons 1–3
  *
  * This file has NO knowledge of HTML or buttons.
  * It only manages state and rules. That separation makes logic
@@ -167,8 +167,33 @@ class Calculator {
     this.state.lastAction = "clear";
   }
 
+  /**
+   * Lesson 3: C (clear entry)
+   *
+   * - Last action was operator → undo it, restore display to previousValue
+   * - Otherwise → clear current number back to 0
+   * - ERR state → full reset (same as AC)
+   */
   clearEntry() {
-    // Lesson 3
+    if (this.state.hasError) {
+      this.clearAll();
+      return;
+    }
+
+    if (this.state.lastAction === "operator") {
+      const prior = formatResult(this.state.previousValue);
+      this.state.currentValue = prior;
+      this.state.display = prior;
+      this.state.operator = null;
+      this.state.previousValue = null;
+      this.state.waitingForOperand = false;
+      this.state.lastAction = "clear";
+      return;
+    }
+
+    this.state.currentValue = "0";
+    this.state.display = "0";
+    this.state.lastAction = "clear";
   }
 
   toggleSign() {
